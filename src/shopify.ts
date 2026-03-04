@@ -3,8 +3,8 @@ import Client from 'shopify-buy';
 // Initialize the Shopify Buy SDK client
 // Replace with actual credentials from environment variables in production
 export const shopifyClient = Client.buildClient({
-  domain: 'remedybyari.myshopify.com', // Using the reference domain as a placeholder
-  storefrontAccessToken: 'placeholder_token_for_dev_only',
+  domain: 'n0wkdr-rf.myshopify.com',
+  storefrontAccessToken: '71728617b219c4a7f01a8591109af7de',
   apiVersion: '2024-01'
 });
 

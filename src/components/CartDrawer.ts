@@ -1,4 +1,4 @@
-import { cartState } from '../shopify.ts';
+import { cartState, shopifyClient } from '../shopify.ts';
 
 export function renderCartDrawer(container: HTMLElement) {
   container.innerHTML = `
@@ -110,6 +110,36 @@ export function renderCartDrawer(container: HTMLElement) {
   const closeCart = () => cartState.toggleCart();
   closeBtn.addEventListener('click', closeCart);
   overlay.addEventListener('click', closeCart);
+
+  checkoutBtnEl.addEventListener('click', async () => {
+    const originalText = checkoutBtnEl.textContent || 'Checkout';
+    checkoutBtnEl.disabled = true;
+    checkoutBtnEl.textContent = 'Secure Checkout...';
+
+    try {
+      // 1. Create an empty checkout session
+      const checkout = await shopifyClient.checkout.create();
+
+      // 2. Format cart items for Shopify Buy SDK
+      // Note: This requires genuine Shopify GraphQL Variant IDs, which match the format (gid://shopify/ProductVariant/...)
+      const lineItemsToAdd = cartState.items.map(item => ({
+        variantId: item.id, // Currently fails gracefully using mock 'prod_1' IDs
+        quantity: 1
+      }));
+
+      // 3. Add items to checkout
+      const updatedCheckout = await shopifyClient.checkout.addLineItems(checkout.id, lineItemsToAdd);
+
+      // 4. Redirect the user to the secure Shopify checkout URL
+      window.location.href = updatedCheckout.webUrl;
+
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Checkout Failed: Make sure you have added real products to your Shopify store and published them to the Headless sales channel. (Mock Product IDs are currently in use)');
+      checkoutBtnEl.disabled = false;
+      checkoutBtnEl.textContent = originalText;
+    }
+  });
 
   const renderItems = (items: any[]) => {
     if (items.length === 0) {
