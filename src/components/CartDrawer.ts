@@ -1,4 +1,4 @@
-import { cartState, shopifyClient } from '../shopify.ts';
+import { cartState, createCheckoutUrl } from '../shopify.ts';
 
 export function renderCartDrawer(container: HTMLElement) {
   container.innerHTML = `
@@ -117,25 +117,17 @@ export function renderCartDrawer(container: HTMLElement) {
     checkoutBtnEl.textContent = 'Secure Checkout...';
 
     try {
-      // 1. Create an empty checkout session
-      const checkout = await shopifyClient.checkout.create();
-
-      // 2. Format cart items for Shopify Buy SDK
-      // Note: This requires genuine Shopify GraphQL Variant IDs, which match the format (gid://shopify/ProductVariant/...)
       const lineItemsToAdd = cartState.items.map(item => ({
-        variantId: item.id, // Currently fails gracefully using mock 'prod_1' IDs
-        quantity: 1
+        variantId: item.variantId,
+        quantity: item.quantity
       }));
 
-      // 3. Add items to checkout
-      const updatedCheckout = await shopifyClient.checkout.addLineItems(checkout.id, lineItemsToAdd);
-
-      // 4. Redirect the user to the secure Shopify checkout URL
-      window.location.href = updatedCheckout.webUrl;
+      const checkoutUrl = await createCheckoutUrl(lineItemsToAdd);
+      window.location.href = checkoutUrl;
 
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Checkout Failed: Make sure you have added real products to your Shopify store and published them to the Headless sales channel. (Mock Product IDs are currently in use)');
+      alert('Checkout Failed. Make sure you have products added properly.');
       checkoutBtnEl.disabled = false;
       checkoutBtnEl.textContent = originalText;
     }
@@ -161,17 +153,17 @@ export function renderCartDrawer(container: HTMLElement) {
     let subtotal = 0;
 
     itemsContainer.innerHTML = items.map((item, id) => {
-      subtotal += item.price;
+      subtotal += (item.price * item.quantity);
       return `
         <div class="cart-item">
           <img src="${item.image}" alt="${item.title}" class="cart-item-image rounded shadow-sm bg-surface" />
           <div class="cart-item-details">
             <div>
               <h4 class="font-bold text-sm mb-1 leading-tight">${item.title}</h4>
-              <p class="text-muted text-xs font-medium uppercase tracking-wider">${item.category}</p>
+              <p class="text-muted text-xs font-medium uppercase tracking-wider">Qty: ${item.quantity}</p>
             </div>
             <div class="cart-item-actions">
-              <span class="font-bold text-primary">$${item.price.toFixed(2)}</span>
+              <span class="font-bold text-primary">$${(item.price * item.quantity).toFixed(2)}</span>
               <button onclick="window.removeCartItem(${id})" class="text-xs text-muted hover:text-error hover:underline transition-colors uppercase font-bold tracking-widest">Remove</button>
             </div>
           </div>

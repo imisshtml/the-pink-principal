@@ -12,8 +12,5 @@
     "@types/shopify-buy": "^3.0.0",
     "typescript": "~5.9.3",
     "vite": "^5.4.14"
-  },
-  "dependencies": {
-    "shopify-buy": "^3.0.7"
   }
 }

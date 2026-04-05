@@ -12,13 +12,13 @@ export function renderHeader(container: HTMLElement) {
       </div>
       
       <div class="logo-container">
-        <a href="/" class="logo text-primary font-bold uppercase z-50 relative">The Pink Principal</a>
+        <a href="/" class="logo logo-link text-primary font-bold uppercase z-50 relative">The Pink Principal</a>
       </div>
       
       <nav class="desktop-nav hidden md:flex items-center gap-6">
-        <a href="#lips" class="nav-link font-semibold uppercase text-sm text-muted slide-up" style="animation-delay: 100ms">Makeup Kits</a>
-        <a href="#eyes" class="nav-link font-semibold uppercase text-sm text-muted slide-up" style="animation-delay: 200ms">Hair Units</a>
-        <a href="#bestsellers" class="nav-link font-semibold uppercase text-sm text-muted slide-up" style="animation-delay: 300ms">Best Sellers</a>
+        <a href="#makeup" class="nav-link font-semibold uppercase text-sm text-muted slide-up" style="animation-delay: 100ms">Makeup Kits</a>
+        <a href="#hair" class="nav-link font-semibold uppercase text-sm text-muted slide-up" style="animation-delay: 200ms">Hair Units</a>
+        <a href="#shop" class="nav-link font-semibold uppercase text-sm text-muted slide-up" style="animation-delay: 300ms">Shop All</a>
       </nav>
       
       <div class="cart-toggle-container">
@@ -36,9 +36,9 @@ export function renderHeader(container: HTMLElement) {
     <!-- Mobile Navigation Overlay (hidden by default) -->
     <div id="mobile-menu" class="mobile-menu bg-surface-pink hidden fade-in">
       <nav class="flex flex-col gap-6 p-8">
-        <a href="#lips" class="mobile-nav-link text-xl font-bold">Makeup Kits</a>
-        <a href="#eyes" class="mobile-nav-link text-xl font-bold">Hair Units</a>
-        <a href="#bestsellers" class="mobile-nav-link text-xl font-bold">Best Sellers</a>
+        <a href="#makeup" class="mobile-nav-link text-xl font-bold">Makeup Kits</a>
+        <a href="#hair" class="mobile-nav-link text-xl font-bold">Hair Units</a>
+        <a href="#shop" class="mobile-nav-link text-xl font-bold">Shop All</a>
       </nav>
     </div>
   `;
@@ -56,6 +56,19 @@ export function renderHeader(container: HTMLElement) {
       padding-top: var(--spacing-4);
       padding-bottom: var(--spacing-4);
       border-bottom: 1px solid var(--color-border);
+      gap: 0.5rem;
+    }
+    .logo-container {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .logo-link {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
     .logo {
       font-size: var(--font-size-xl);
@@ -92,6 +105,18 @@ export function renderHeader(container: HTMLElement) {
     }
     .hidden {
       display: none !important;
+    }
+    @media (max-width: 767px) {
+      .header-inner {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+      }
+      .logo {
+        font-size: 1.35rem;
+      }
+      .cart-toggle-container {
+        flex: 0 0 auto;
+      }
     }
     @media (min-width: 768px) {
       .md\\:hidden { display: none !important; }

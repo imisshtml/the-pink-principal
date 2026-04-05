@@ -1,26 +1,19 @@
-export function renderHero(container: HTMLElement, imagePath: string) {
+export function renderHero(container: HTMLElement) {
   container.innerHTML = `
-    <section class="hero-section relative w-full flex items-center justify-center bg-surface-pink overflow-hidden">
+    <section class="hero-section hero-fullbleed">
       
-      <!-- Background Image with Overlay -->
-      <div class="absolute inset-0 z-0">
-        <img src="${imagePath}" alt="The Pink Principal Collection" class="w-full h-full object-cover opacity-80" />
-        <div class="absolute inset-0 bg-gradient-to-r from-surface-pink/90 to-transparent"></div>
+      <!-- Background Image -->
+      <div class="hero-image-layer">
+        <img src="/src/assets/header.png" alt="The Pink Principal - Makeup & Hair" class="hero-image" />
+        <!-- Subtle gradient at the bottom for button visibility -->
+        <div class="hero-gradient"></div>
       </div>
       
-      <!-- Content Stack -->
-      <div class="container relative z-10 py-16 md:py-32 flex flex-col items-start justify-center">
-        <div class="hero-content max-w-lg fade-in">
-          <h1 class="text-primary font-bold mb-4 uppercase tracking-tight slide-up" style="animation-delay: 100ms">
-            Release Your Inner <br><span class="text-primary-dark">Royalty</span>
-          </h1>
-          <p class="text-muted text-lg mb-8 slide-up" style="animation-delay: 200ms">
-            Discover our premium collection of highly-pigmented makeup kits and luxurious, raw hair units. Real Results. Real Remedy.
-          </p>
-          <div class="flex gap-4 slide-up" style="animation-delay: 300ms">
-            <a href="#makeup" class="btn btn-primary">Shop Makeup</a>
-            <a href="#hair" class="btn btn-outline bg-background/50 backdrop-blur-sm">Shop Hair</a>
-          </div>
+      <!-- Content Stack (Just CTAs at the bottom now) -->
+      <div class="hero-content-wrap container">
+        <div class="hero-content flex gap-4 slide-up" style="animation-delay: 300ms">
+          <a href="#makeup" class="btn btn-primary shadow-pink hero-cta font-bold">Shop Makeup</a>
+          <a href="#hair" class="btn btn-outline bg-background/80 backdrop-blur-sm hero-cta font-bold border-2">Shop Hair</a>
         </div>
       </div>
     </section>
@@ -29,29 +22,82 @@ export function renderHero(container: HTMLElement, imagePath: string) {
   const style = document.createElement('style');
   style.textContent = `
     .hero-section {
-      min-height: 80vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--color-surface-pink);
+      min-height: clamp(420px, 72vh, 900px);
     }
-    .absolute { position: absolute; }
-    .relative { position: relative; }
-    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-    .z-0 { z-index: 0; }
-    .z-10 { z-index: 10; }
-    .object-cover { object-fit: cover; }
-    .opacity-80 { opacity: 0.8; }
-    .max-w-lg { max-width: 32rem; }
-    .tracking-tight { letter-spacing: -0.025em; }
-    .bg-gradient-to-r {
-      background: linear-gradient(to right, rgba(255, 240, 245, 0.95), rgba(255, 240, 245, 0.4), transparent);
+    .hero-fullbleed {
+      width: 100%;
+      max-width: 1800px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .backdrop-blur-sm { backdrop-filter: blur(4px); }
-    .bg-background\\/50 { background-color: rgba(255, 255, 255, 0.5); }
-    @media (max-width: 768px) {
-      .bg-gradient-to-r {
-        background: linear-gradient(to bottom, rgba(255, 240, 245, 0.9), rgba(255, 240, 245, 0.8));
+    .hero-image-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    .hero-gradient {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 8rem;
+      background: linear-gradient(to top, var(--color-surface-pink), transparent);
+    }
+    .hero-content-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      min-height: inherit;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-top: 3rem;
+      padding-bottom: 2rem;
+    }
+    .hero-content {
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+    .hero-cta {
+      min-width: 132px;
+      padding: 0.7rem 1.1rem;
+      font-size: 0.95rem;
+    }
+    @media (max-width: 640px) {
+      .hero-section {
+        min-height: 62vh;
       }
-      .hero-content { text-align: center; margin: 0 auto; }
-      .flex.gap-4 { justify-content: center; }
+      .hero-content-wrap {
+        padding-top: 2rem;
+        padding-bottom: 1.25rem;
+      }
+      .hero-content {
+        gap: 0.75rem;
+      }
+      .hero-cta {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0.9rem;
+        padding: 0.65rem 0.8rem;
+      }
     }
   `;
   document.head.appendChild(style);
+
 }

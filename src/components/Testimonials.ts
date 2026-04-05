@@ -39,11 +39,11 @@ export function renderTestimonials(container: HTMLElement) {
   `).join('');
 
   container.innerHTML = `
-    <section class="py-24 bg-surface">
+    <section class="testimonials-section py-24 bg-surface">
       <div class="container">
         <div class="text-center max-w-2xl mx-auto mb-16 scroll-reveal fade-in delay-slide">
-          <h2 class="text-3xl font-bold uppercase tracking-tight text-primary mb-4">The Pink Principal Effect</h2>
-          <p class="text-muted">See how our community wears The Pink Principal, from everyday soft glam to full-on statement moments. This is beauty in real life. Made to be seen.</p>
+          <h2 class="testimonials-title text-3xl font-bold uppercase tracking-tight text-primary mb-4">The Pink Principal Effect</h2>
+          <p class="testimonials-copy text-muted">See how our community wears The Pink Principal, from everyday soft glam to full-on statement moments. This is beauty in real life. Made to be seen.</p>
         </div>
         
         <div class="grid md:grid-cols-3 gap-8">
@@ -63,6 +63,18 @@ export function renderTestimonials(container: HTMLElement) {
     }
     .rounded-xl { border-radius: 0.75rem; }
     .max-w-2xl { max-width: 42rem; }
+    @media (max-width: 640px) {
+      .testimonials-section {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+      }
+      .testimonials-title {
+        font-size: 2.1rem;
+      }
+      .testimonials-copy {
+        font-size: 0.95rem;
+      }
+    }
   `;
   document.head.appendChild(style);
 }

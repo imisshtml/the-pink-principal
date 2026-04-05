@@ -2,9 +2,9 @@ import './styles/style.css'
 import { renderHeader } from './components/Header.ts'
 import { renderFooter } from './components/Footer.ts'
 import { renderHero } from './components/Hero.ts'
-import { renderCategoryCards } from './components/CategoryCards.ts'
 import { renderProductCarousel } from './components/ProductCarousel.ts'
-import { mockProducts } from './data/mockProducts.ts'
+import { fetchAllProducts } from './shopify.ts'
+import type { ShopifyProduct } from './shopify.ts'
 import { renderAbout } from './components/About.ts'
 import { renderTestimonials } from './components/Testimonials.ts'
 import { renderCartDrawer } from './components/CartDrawer.ts'
@@ -20,6 +20,28 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 `
 
+function renderFatalError(message: string) {
+  const app = document.querySelector<HTMLDivElement>('#app');
+  if (!app) return;
+  app.innerHTML = `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:#fff0f5;color:#cc0044;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      <div style="max-width:760px;width:100%;background:#fff;border:1px solid #ffd6e0;border-radius:12px;padding:1rem 1.25rem;box-shadow:0 10px 30px rgba(255,51,102,0.12);">
+        <h2 style="margin:0 0 .5rem 0;font-size:1.1rem;">App startup error</h2>
+        <pre style="white-space:pre-wrap;word-break:break-word;margin:0;font-size:.9rem;line-height:1.5;">${message}</pre>
+      </div>
+    </div>
+  `;
+}
+
+function formatError(error: unknown): string {
+  if (error instanceof Error) return `${error.name}: ${error.message}`;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+
 // Inject static layout components
 renderHeader(document.getElementById('header-container')!)
 renderFooter(document.getElementById('footer-container')!)
@@ -27,8 +49,37 @@ renderCartDrawer(document.getElementById('cart-drawer-container')!)
 
 const mainContent = document.getElementById('main-content')!;
 
+const hairMockProducts: ShopifyProduct[] = [
+  {
+    id: 'mock-hair-1',
+    variantId: '',
+    title: 'Raw Body Wave Unit',
+    price: 299,
+    compareAtPrice: 349,
+    image: '/images/hair_category_1772433319731.png',
+    images: ['/images/hair_category_1772433319731.png'],
+    productType: 'hair',
+    handle: 'raw-body-wave-unit-mock',
+    description: 'Mock hair product while hair collection is being finalized.',
+    variants: []
+  },
+  {
+    id: 'mock-hair-2',
+    variantId: '',
+    title: 'Raw Straight Lace Unit',
+    price: 319,
+    compareAtPrice: 369,
+    image: '/images/hair_category_1772433319731.png',
+    images: ['/images/hair_category_1772433319731.png'],
+    productType: 'hair',
+    handle: 'raw-straight-lace-unit-mock',
+    description: 'Mock hair product while hair collection is being finalized.',
+    variants: []
+  }
+];
+
 // Basic Hash Router
-function router() {
+async function router() {
   const hash = window.location.hash;
   mainContent.innerHTML = '';
   window.scrollTo(0, 0);
@@ -41,25 +92,65 @@ function router() {
     mainContent.innerHTML = `
       <div id="hero-container"></div>
       <div id="categories-container"></div>
-      <div id="featured-products-container"></div>
+      <div id="makeup-products-container">
+        <div class="py-20 flex justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+      </div>
+      <div id="hair-products-container">
+        <div class="py-20 flex justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+      </div>
       <div id="about-container"></div>
       <div id="testimonials-container"></div>
     `;
 
-    renderHero(document.getElementById('hero-container')!, '/images/hero_banner_1772433292440.png')
-    const categories = [
-      { title: 'Makeup Kits', image: '/images/makeup_category_1772433307003.png', link: '#makeup' },
-      { title: 'Raw Hair Units', image: '/images/hair_category_1772433319731.png', link: '#hair' }
-    ]
-    renderCategoryCards(document.getElementById('categories-container')!, categories)
-    renderProductCarousel(document.getElementById('featured-products-container')!, "Ari's Top Picks", mockProducts)
+    renderHero(document.getElementById('hero-container')!)
+    // Category cards intentionally hidden for this layout revision.
+
+    // Featured products on home:
+    // primary section = Makeup (live Shopify), secondary = Hair (Coming Soon).
+    const products = await fetchAllProducts();
+    const makeupProducts = products
+      .filter((product) => product.productType !== 'hair')
+      .slice(0, 8);
+    renderProductCarousel(
+      document.getElementById('makeup-products-container')!,
+      'Makeup',
+      makeupProducts
+    )
+    renderProductCarousel(
+      document.getElementById('hair-products-container')!,
+      'Hair (Coming Soon)',
+      hairMockProducts
+    )
+    
     renderAbout(document.getElementById('about-container')!)
     renderTestimonials(document.getElementById('testimonials-container')!)
   }
+
+  // Initialize scroll animations after render
+  setTimeout(() => {
+    initScrollAnimations();
+  }, 100);
 }
 
-window.addEventListener('hashchange', router);
-router(); // initial load
+window.addEventListener('error', (event) => {
+  renderFatalError(formatError(event.error || event.message));
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  renderFatalError(formatError(event.reason));
+});
+
+window.addEventListener('hashchange', () => {
+  router().catch((error) => {
+    console.error('Router error:', error);
+    renderFatalError(formatError(error));
+  });
+});
+
+router().catch((error) => {
+  console.error('Initial route render error:', error);
+  renderFatalError(formatError(error));
+});
 
 // Intersection Observer for scroll animations
 const observerOptions = {
@@ -83,22 +174,3 @@ export function initScrollAnimations() {
   const elements = document.querySelectorAll('.fade-in, .slide-up, .delayed-slide');
   elements.forEach(el => observer.observe(el));
 }
-
-// Intercept routing to re-initialize observers
-const originalRouter = router;
-// @ts-ignore - overriding internal router function
-window.router = function () {
-  originalRouter();
-  setTimeout(() => {
-    initScrollAnimations();
-  }, 50);
-};
-// Setup event listener to use the new router
-window.removeEventListener('hashchange', originalRouter);
-window.addEventListener('hashchange', (window as any).router);
-
-// Initial initialization
-setTimeout(() => {
-  initScrollAnimations();
-}, 50);
-
