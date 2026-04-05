@@ -1,10 +1,12 @@
+import headerImage from '../assets/header.png';
+
 export function renderHero(container: HTMLElement) {
   container.innerHTML = `
     <section class="hero-section hero-fullbleed">
       
       <!-- Background Image -->
       <div class="hero-image-layer">
-        <img src="/src/assets/header.png" alt="The Pink Principal - Makeup & Hair" class="hero-image" />
+        <img src="${headerImage}" alt="The Pink Principal - Makeup & Hair" class="hero-image" />
         <!-- Subtle gradient at the bottom for button visibility -->
         <div class="hero-gradient"></div>
       </div>
