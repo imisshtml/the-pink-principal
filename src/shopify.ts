@@ -31,6 +31,10 @@ const DOMAIN = 'n0wkdr-rf.myshopify.com';
 const TOKEN = '71728617b219c4a7f01a8591109af7de';
 const API_VERSION = '2024-01';
 const ENDPOINT = `https://${DOMAIN}/api/${API_VERSION}/graphql.json`;
+const CHECKOUT_DOMAIN_OVERRIDE = (import.meta.env.VITE_SHOPIFY_CHECKOUT_DOMAIN as string | undefined)?.trim();
+
+let cachedCheckoutDomain: string | null = null;
+let checkoutDomainRequest: Promise<string | null> | null = null;
 
 type StorefrontError = { message?: string };
 
@@ -56,6 +60,58 @@ async function storefrontRequest<TData>(query: string, variables?: Record<string
   }
 
   return payload.data as TData;
+}
+
+function normalizeHost(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  try {
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return new URL(trimmed).host;
+    }
+    return new URL(`https://${trimmed}`).host;
+  } catch {
+    return trimmed.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  }
+}
+
+async function getCheckoutDomain(): Promise<string | null> {
+  if (CHECKOUT_DOMAIN_OVERRIDE) {
+    return normalizeHost(CHECKOUT_DOMAIN_OVERRIDE) || null;
+  }
+
+  if (cachedCheckoutDomain !== null) {
+    return cachedCheckoutDomain;
+  }
+
+  if (checkoutDomainRequest) {
+    return checkoutDomainRequest;
+  }
+
+  checkoutDomainRequest = (async () => {
+    try {
+      const data = await storefrontRequest<{ shop?: { primaryDomain?: { host?: string | null; url?: string | null } } }>(`
+        {
+          shop {
+            primaryDomain {
+              host
+              url
+            }
+          }
+        }
+      `);
+      const hostFromApi = data?.shop?.primaryDomain?.host || data?.shop?.primaryDomain?.url || '';
+      cachedCheckoutDomain = normalizeHost(hostFromApi) || null;
+      return cachedCheckoutDomain;
+    } catch {
+      cachedCheckoutDomain = null;
+      return null;
+    } finally {
+      checkoutDomainRequest = null;
+    }
+  })();
+
+  return checkoutDomainRequest;
 }
 
 export async function fetchAllProducts(): Promise<ShopifyProduct[]> {
@@ -191,7 +247,17 @@ export async function createCheckoutUrl(lineItems: { variantId: string, quantity
   }
 
   if (data?.cartCreate?.cart?.checkoutUrl) {
-    return data.cartCreate.cart.checkoutUrl;
+    const rawCheckoutUrl = data.cartCreate.cart.checkoutUrl;
+    const checkoutDomain = await getCheckoutDomain();
+    if (!checkoutDomain) return rawCheckoutUrl;
+
+    try {
+      const parsedUrl = new URL(rawCheckoutUrl);
+      parsedUrl.host = checkoutDomain;
+      return parsedUrl.toString();
+    } catch {
+      return rawCheckoutUrl;
+    }
   }
 
   throw new Error('Could not create checkout URL');

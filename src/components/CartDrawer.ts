@@ -115,6 +115,10 @@ export function renderCartDrawer(container: HTMLElement) {
     const originalText = checkoutBtnEl.textContent || 'Checkout';
     checkoutBtnEl.disabled = true;
     checkoutBtnEl.textContent = 'Secure Checkout...';
+    const checkoutTab = window.open('about:blank', '_blank');
+    if (checkoutTab) {
+      checkoutTab.opener = null;
+    }
 
     try {
       const lineItemsToAdd = cartState.items.map(item => ({
@@ -123,9 +127,19 @@ export function renderCartDrawer(container: HTMLElement) {
       }));
 
       const checkoutUrl = await createCheckoutUrl(lineItemsToAdd);
-      window.location.href = checkoutUrl;
+      if (checkoutTab) {
+        checkoutTab.location.href = checkoutUrl;
+      } else {
+        // Popup blocked: preserve current behavior.
+        window.location.href = checkoutUrl;
+      }
+      checkoutBtnEl.disabled = false;
+      checkoutBtnEl.textContent = originalText;
 
     } catch (error) {
+      if (checkoutTab && !checkoutTab.closed) {
+        checkoutTab.close();
+      }
       console.error('Checkout error:', error);
       alert('Checkout Failed. Make sure you have products added properly.');
       checkoutBtnEl.disabled = false;
