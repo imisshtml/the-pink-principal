@@ -12,7 +12,7 @@ export function renderHeader(container: HTMLElement) {
       </div>
       
       <div class="logo-container">
-        <a href="/" class="logo logo-link text-primary font-bold uppercase z-50 relative">The Pink Principal</a>
+        <a href="#" class="logo logo-link text-primary font-bold uppercase z-50 relative">The Pink Principal</a>
       </div>
       
       <nav class="desktop-nav hidden md:flex items-center gap-6">
@@ -49,8 +49,12 @@ export function renderHeader(container: HTMLElement) {
     #header-container {
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 1000;
       width: 100%;
+      display: block;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .header-inner {
       padding-top: var(--spacing-4);
@@ -121,6 +125,11 @@ export function renderHeader(container: HTMLElement) {
     @media (min-width: 768px) {
       .md\\:hidden { display: none !important; }
       .md\\:flex { display: flex !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      #header-container {
+        background: rgba(10, 10, 10, 0.92);
+      }
     }
   `;
   document.head.appendChild(style);
