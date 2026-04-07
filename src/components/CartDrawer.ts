@@ -55,14 +55,17 @@ export function renderCartDrawer(container: HTMLElement) {
       position: fixed;
       top: 0; right: 0;
       height: 100vh;
+      height: 100dvh;
       width: 100%;
       max-width: 28rem;
       z-index: 9999;
       background-color: var(--color-background, #fff);
+      overflow: hidden;
     }
     .cart-header {
       padding-top: 1rem;
       padding-bottom: 1rem;
+      flex: 0 0 auto;
     }
     .cart-title {
       margin: 0;
@@ -78,6 +81,10 @@ export function renderCartDrawer(container: HTMLElement) {
     #cart-items {
       padding: 1.25rem;
       gap: 1rem;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
     .cart-item {
       display: flex;
@@ -113,6 +120,7 @@ export function renderCartDrawer(container: HTMLElement) {
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+      flex: 0 0 auto;
     }
     @media (min-width: 768px) {
       #cart-items {
