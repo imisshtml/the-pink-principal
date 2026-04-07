@@ -9,8 +9,8 @@ export function renderCartDrawer(container: HTMLElement) {
     <div id="cart-drawer" class="cart-drawer-fixed flex flex-col shadow-2xl bg-background translate-x-full drawer-transition">
       
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-border flex justify-between items-center bg-surface-pink">
-        <h2 class="text-xl font-bold uppercase tracking-tight text-primary">Your Bag</h2>
+      <div class="cart-header px-6 py-4 border-b border-border flex justify-between items-center bg-surface-pink">
+        <p class="cart-title font-bold uppercase tracking-tight text-primary">Your Bag</p>
         <button id="close-cart-btn" class="btn btn-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"></path>
@@ -30,7 +30,7 @@ export function renderCartDrawer(container: HTMLElement) {
       </div>
       
       <!-- Footer -->
-      <div class="p-8 border-t border-border bg-surface">
+      <div class="cart-footer p-8 border-t border-border bg-surface">
         <div class="flex justify-between mb-4 font-semibold text-lg">
           <span>Subtotal</span>
           <span id="cart-subtotal">$0.00</span>
@@ -60,27 +60,40 @@ export function renderCartDrawer(container: HTMLElement) {
       z-index: 9999;
       background-color: var(--color-background, #fff);
     }
+    .cart-header {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+    .cart-title {
+      margin: 0;
+      font-size: 1.6rem;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
     .translate-x-full { transform: translateX(100%); }
     .translate-x-0 { transform: translateX(0); }
     .drawer-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .disabled\\:opacity-50:disabled { opacity: 0.5; cursor: not-allowed; }
     
+    #cart-items {
+      padding: 1.25rem;
+      gap: 1rem;
+    }
     .cart-item {
       display: flex;
       gap: 1rem;
       align-items: stretch;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .cart-item:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
+      padding: 0.85rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.75rem;
+      background: var(--color-surface);
     }
     .cart-item-image {
-      width: 5.5rem;
-      height: 7rem;
+      width: 5rem;
+      height: 6.25rem;
       object-fit: cover;
       flex-shrink: 0;
+      border-radius: 0.5rem;
     }
     .cart-item-details {
       flex: 1;
@@ -94,7 +107,22 @@ export function renderCartDrawer(container: HTMLElement) {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: auto;
+      margin-top: 0.75rem;
+    }
+    .cart-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    @media (min-width: 768px) {
+      #cart-items {
+        padding: 1.75rem;
+      }
+      .cart-header,
+      .cart-footer {
+        padding-left: 1.75rem;
+        padding-right: 1.75rem;
+      }
     }
   `;
   document.head.appendChild(style);

@@ -83,14 +83,21 @@ export function renderHero(container: HTMLElement) {
     }
     @media (max-width: 640px) {
       .hero-section {
-        min-height: 62vh;
+        min-height: 52vh;
       }
       .hero-content-wrap {
-        padding-top: 2rem;
-        padding-bottom: 1.25rem;
+        padding-top: 1rem;
+        padding-bottom: 0.75rem;
       }
       .hero-content {
         gap: 0.75rem;
+      }
+      .hero-image {
+        object-fit: contain;
+        object-position: center top;
+      }
+      .hero-gradient {
+        height: 4rem;
       }
       .hero-cta {
         flex: 1 1 auto;

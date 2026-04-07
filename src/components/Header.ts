@@ -112,14 +112,26 @@ export function renderHeader(container: HTMLElement) {
     }
     @media (max-width: 767px) {
       .header-inner {
-        padding-top: 0.6rem;
-        padding-bottom: 0.6rem;
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
       }
       .logo {
-        font-size: 1.35rem;
+        font-size: 1.12rem;
+        line-height: 1.1;
       }
       .cart-toggle-container {
         flex: 0 0 auto;
+      }
+      .btn-icon {
+        padding: 0.28rem;
+      }
+      .btn-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+      .badge {
+        padding: 1px 5px;
+        font-size: 0.65rem;
       }
     }
     @media (min-width: 768px) {

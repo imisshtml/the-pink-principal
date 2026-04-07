@@ -86,7 +86,7 @@ async function router() {
 
   if (hash === '#shop' || hash === '#makeup' || hash === '#hair') {
     const category = hash === '#shop' ? 'all' : hash.replace('#', '');
-    renderShopPage(mainContent, category);
+    await renderShopPage(mainContent, category);
   } else {
     // Render Homepage
     mainContent.innerHTML = `

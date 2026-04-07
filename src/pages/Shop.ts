@@ -12,14 +12,7 @@ export async function renderShopPage(container: HTMLElement, initialCategory = '
     
     <div class="container py-12 flex flex-col md:flex-row gap-8 min-h-screen">
       <!-- Filter Sidebar -->
-      <aside class="w-full md:w-64 flex-shrink-0 slide-up">
-        <h3 class="font-bold uppercase tracking-widest text-sm mb-4 border-b border-border pb-2">Filter By Category</h3>
-        <div class="flex flex-col gap-3" id="category-filters">
-          <button class="filter-btn text-left text-muted hover:text-primary transition-colors ${initialCategory === 'all' ? 'text-primary font-bold' : ''}" data-category="all">All Products</button>
-          <button class="filter-btn text-left text-muted hover:text-primary transition-colors ${initialCategory === 'makeup' ? 'text-primary font-bold' : ''}" data-category="makeup">Makeup Kits</button>
-          <button class="filter-btn text-left text-muted hover:text-primary transition-colors ${initialCategory === 'hair' ? 'text-primary font-bold' : ''}" data-category="hair">Raw Hair Units</button>
-        </div>
-      </aside>
+      
       
       <!-- Product Grid -->
       <div class="flex-1">
@@ -44,12 +37,21 @@ export async function renderShopPage(container: HTMLElement, initialCategory = '
       : products.filter(p => p.productType.toLowerCase() === category.toLowerCase() || p.handle.includes(category));
 
     if (filteredProducts.length === 0) {
-      gridEl.innerHTML = '<div class="col-span-full py-12 text-center text-muted">No products found in this category.</div>';
+      if (category.toLowerCase() === 'hair') {
+        gridEl.innerHTML = `
+          <div class="col-span-full py-12 text-center">
+            <p class="text-primary font-bold uppercase tracking-widest text-lg mb-2">Coming Soon</p>
+            <p class="text-muted">Our premium raw hair collection is on the way. Please check back soon.</p>
+          </div>
+        `;
+      } else {
+        gridEl.innerHTML = '<div class="col-span-full py-12 text-center text-muted">No products found in this category.</div>';
+      }
       return;
     }
 
-    gridEl.innerHTML = filteredProducts.map((product, index) => `
-      <div class="product-card group delayed-slide" style="animation-delay: ${index * 50}ms">
+    gridEl.innerHTML = filteredProducts.map((product) => `
+      <div class="product-card group">
         <div class="relative bg-surface rounded-lg overflow-hidden mb-4 aspect-4/5 shadow-sm group-hover:shadow-md transition-shadow">
           ${!product.image ? '' : `<img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover transition-transform duration-slow group-hover:scale-105" />`}
         </div>
