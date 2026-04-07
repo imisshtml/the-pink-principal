@@ -53,13 +53,14 @@ export async function renderShopPage(container: HTMLElement, initialCategory = '
     gridEl.innerHTML = filteredProducts.map((product) => `
       <div class="product-card group">
         <div class="relative bg-surface rounded-lg overflow-hidden mb-4 aspect-4/5 shadow-sm group-hover:shadow-md transition-shadow">
+          ${product.inStock ? '' : '<div class="absolute top-3 left-3 z-10 bg-primary text-text-inverse text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Sold Out</div>'}
           ${!product.image ? '' : `<img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover transition-transform duration-slow group-hover:scale-105" />`}
         </div>
         <div class="text-center">
           <h4 class="font-bold text-sm mb-1 group-hover:text-primary transition-colors">${product.title}</h4>
           <div class="flex items-center justify-between gap-2">
             <p class="text-muted font-medium text-sm">$${product.price.toFixed(2)} USD</p>
-            <button class="shop-quick-view-btn btn btn-primary shadow-lg text-sm m-0 py-2" data-id="${product.id}">Add to Bag</button>
+            <button class="shop-quick-view-btn btn ${product.inStock ? 'btn-primary' : 'btn-outline opacity-90 cursor-not-allowed'} shadow-lg text-sm m-0 py-2" data-id="${product.id}" ${product.inStock ? '' : 'disabled'}>${product.inStock ? 'Add to Bag' : 'Sold Out'}</button>
           </div>
         </div>
       </div>

@@ -61,6 +61,7 @@ const hairMockProducts: ShopifyProduct[] = [
     productType: 'hair',
     handle: 'raw-body-wave-unit-mock',
     description: 'Mock hair product while hair collection is being finalized.',
+    inStock: false,
     variants: []
   },
   {
@@ -74,6 +75,7 @@ const hairMockProducts: ShopifyProduct[] = [
     productType: 'hair',
     handle: 'raw-straight-lace-unit-mock',
     description: 'Mock hair product while hair collection is being finalized.',
+    inStock: false,
     variants: []
   }
 ];

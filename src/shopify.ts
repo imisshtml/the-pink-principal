@@ -9,6 +9,7 @@ export interface ShopifyVariant {
   price: number;
   compareAtPrice?: number | null;
   availableForSale: boolean;
+  inventoryQuantity: number | null;
   selectedOptions: ShopifyVariantOption[];
   image?: string;
 }
@@ -24,6 +25,7 @@ export interface ShopifyProduct {
   productType: string;
   handle: string;
   description: string;
+  inStock: boolean;
   variants: ShopifyVariant[];
 }
 
@@ -168,20 +170,7 @@ export async function fetchAllProducts(): Promise<ShopifyProduct[]> {
           id: variantNode.id,
           title: variantNode.title || 'Default',
           availableForSale: Boolean(variantNode.availableForSale),
-          selectedOptions: (variantNode.selectedOptions || []).map((opt: any) => ({
-            name: opt.name,
-            value: opt.value
-          })),
-          image: variantNode?.image?.url || undefined,
-          price: parseFloat(variantNode?.price?.amount || '0'),
-          compareAtPrice: variantNode?.compareAtPrice?.amount ? parseFloat(variantNode.compareAtPrice.amount) : null
-        }))
-        .filter((variant: ShopifyVariant) => variant.availableForSale);
-      const fallbackVariants = variants.length > 0 ? variants : node.variants.edges
-        .map(({ node: variantNode }: any) => ({
-          id: variantNode.id,
-          title: variantNode.title || 'Default',
-          availableForSale: Boolean(variantNode.availableForSale),
+          inventoryQuantity: null,
           selectedOptions: (variantNode.selectedOptions || []).map((opt: any) => ({
             name: opt.name,
             value: opt.value
@@ -190,7 +179,10 @@ export async function fetchAllProducts(): Promise<ShopifyProduct[]> {
           price: parseFloat(variantNode?.price?.amount || '0'),
           compareAtPrice: variantNode?.compareAtPrice?.amount ? parseFloat(variantNode.compareAtPrice.amount) : null
         }));
-      const variant = fallbackVariants[0];
+      const inStockVariants = variants.filter((variant) => (
+        variant.availableForSale && (variant.inventoryQuantity === null || variant.inventoryQuantity > 0)
+      ));
+      const variant = inStockVariants[0] || variants[0];
       return {
         id: node.id,
         variantId: variant?.id || '',
@@ -202,7 +194,8 @@ export async function fetchAllProducts(): Promise<ShopifyProduct[]> {
         productType: normalizedProductType,
         handle: node.handle,
         description: node.descriptionHtml || node.description || '',
-        variants: fallbackVariants
+        inStock: inStockVariants.length > 0,
+        variants
       };
     });
   } catch (error) {

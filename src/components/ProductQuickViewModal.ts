@@ -5,6 +5,10 @@ function getVariantLabel(variant: ShopifyVariant): string {
   return colorOption?.value || variant.title || 'Default';
 }
 
+function isVariantInStock(variant: ShopifyVariant): boolean {
+  return variant.availableForSale && (variant.inventoryQuantity === null || variant.inventoryQuantity > 0);
+}
+
 function getImageLabel(product: ShopifyProduct, image: string, index: number): string {
   const matchingVariant = product.variants.find((variant) => variant.image === image);
   if (matchingVariant) return getVariantLabel(matchingVariant);
@@ -178,6 +182,26 @@ function ensureQuickViewStyles() {
     .quick-view-variant-option.is-selected .quick-view-variant-price {
       color: #27272a;
     }
+    .quick-view-variant-option.is-sold-out {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: #f6f6f6;
+      border-style: dashed;
+    }
+    .quick-view-variant-option.is-sold-out:hover {
+      border-color: var(--color-border, #e5e5e5);
+    }
+    .quick-view-variant-option:disabled {
+      pointer-events: none;
+    }
+    .quick-view-variant-stock {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #c81e4d;
+      margin-top: 0.12rem;
+    }
     .quick-view-close {
       margin-left: auto;
       display: inline-flex;
@@ -220,10 +244,11 @@ export function openProductQuickView(product: ShopifyProduct) {
       price: product.price,
       compareAtPrice: product.compareAtPrice ?? null,
       availableForSale: true,
+      inventoryQuantity: null,
       selectedOptions: []
     }];
 
-  let selectedVariant = variants[0];
+  let selectedVariant = variants.find((variant) => isVariantInStock(variant)) || variants[0];
 
   const imageSet = new Set<string>([product.image, ...product.images, ...(variants.map(v => v.image || ''))].filter(Boolean));
   const imageList = Array.from(imageSet);
@@ -265,8 +290,9 @@ export function openProductQuickView(product: ShopifyProduct) {
               ${variants.map((variant) => `
                 <button
                   type="button"
-                  class="quick-view-variant-option ${variant.id === selectedVariant.id ? 'is-selected' : ''}"
+                  class="quick-view-variant-option ${variant.id === selectedVariant.id ? 'is-selected' : ''} ${isVariantInStock(variant) ? '' : 'is-sold-out'}"
                   data-variant-id="${variant.id}"
+                  ${isVariantInStock(variant) ? '' : 'disabled'}
                 >
                   <img
                     class="quick-view-variant-image"
@@ -276,6 +302,7 @@ export function openProductQuickView(product: ShopifyProduct) {
                   <span class="quick-view-variant-meta">
                     <span class="quick-view-variant-name">${getVariantLabel(variant)}</span>
                     <span class="quick-view-variant-price">$${variant.price.toFixed(2)} USD</span>
+                    ${isVariantInStock(variant) ? '' : '<span class="quick-view-variant-stock">Sold Out</span>'}
                   </span>
                 </button>
               `).join('')}
@@ -316,6 +343,16 @@ export function openProductQuickView(product: ShopifyProduct) {
   const variantButtons = overlay.querySelectorAll('.quick-view-variant-option');
   const priceEl = overlay.querySelector('#quick-view-price') as HTMLElement;
   const compareEl = overlay.querySelector('#quick-view-compare') as HTMLElement;
+  const addBtn = overlay.querySelector('#quick-view-add-btn') as HTMLButtonElement;
+
+  const syncAddButtonState = () => {
+    const canAdd = isVariantInStock(selectedVariant);
+    addBtn.disabled = !canAdd;
+    addBtn.textContent = canAdd ? 'Add to Bag' : 'Sold Out';
+    addBtn.classList.toggle('opacity-70', !canAdd);
+    addBtn.classList.toggle('cursor-not-allowed', !canAdd);
+  };
+  syncAddButtonState();
 
   if (variantButtons.length > 0) {
     variantButtons.forEach((button) => {
@@ -340,12 +377,13 @@ export function openProductQuickView(product: ShopifyProduct) {
         const img = node as HTMLImageElement;
         node.classList.toggle('is-selected', img.dataset.image === selectedImage);
       });
+      syncAddButtonState();
     });
     });
   }
 
-  const addBtn = overlay.querySelector('#quick-view-add-btn') as HTMLButtonElement;
   addBtn.addEventListener('click', () => {
+    if (!isVariantInStock(selectedVariant)) return;
     const productToAdd: ShopifyProduct = {
       ...product,
       variantId: selectedVariant.id,
