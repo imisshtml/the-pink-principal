@@ -9,7 +9,7 @@ export function renderProductCarousel(container: HTMLElement, title: string, pro
     return `
     <div class="product-card flex-shrink-0 group snap-start delayed-slide" style="animation-delay: ${index * 100}ms">
       <div class="relative bg-surface rounded-lg overflow-hidden mb-4 aspect-4/5">
-       
+        ${badge ? `<div class="absolute top-3 left-3 z-10 bg-primary text-text-inverse text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${badge}</div>` : ''}
         <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover transition-transform duration-slow group-hover:scale-105" />
       </div>
       <div>
